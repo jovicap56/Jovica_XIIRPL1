@@ -27,7 +27,7 @@ if (!isset($_SESSION['username'])) {
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
-            <a class="navbar-brand ps-3" href="index.html">Start Bootstrap</a>
+            <a class="navbar-brand ps-3" href="index.php">Aplikasi Kasir</a>
             <!-- Sidebar Toggle-->
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <!-- Navbar Search-->
@@ -87,7 +87,7 @@ if (!isset($_SESSION['username'])) {
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        Start Bootstrap
+                        <a href="#"  method="POST" class="d-block"><?php echo "<h6> "."Admin ". $_SESSION['username']. "</h6>"; ?></a>
                     </div>
                 </nav>
             </div>
@@ -135,7 +135,7 @@ if (!isset($_SESSION['username'])) {
                 <td><?php echo $data['produkID']?></td>
                 <td><?php echo $data['jumlahProduk']?></td>
                 <td>Rp. <?php echo $data['subTotal']?>,00</td>
-                <td><a href="form-edit.php?detailID=<?=$data['detailID']?>">Edit</a> 
+                <td><a href="edit3.php?detailID=<?=$data['detailID']?>">Edit</a> 
                 | <a href="del.php?detailID=<?=$data['detailID']?>">Hapus</a></td>
             </tr>
             <?php
@@ -174,13 +174,13 @@ if (!isset($_SESSION['username'])) {
      <td>
      <label for="detailID">ID Detail</label>
      <input type="text" class="form-control" name="detailID" placeholder="Masukkan ID Detail">
-     <label for="produkId">ID Produk</label>
-                    <select name ="produkId" class="form-control">
+     <label for="produkID">ID Produk</label>
+                    <select name ="produkID" class="form-control">
               <option disabled selected> Pilih </option>
               <?php 
-              $t_produk= mysqli_query($koneksi,"select produkId, namaProduk, Harga from produk");
+              $t_produk= mysqli_query($koneksi,"select produkID, namaProduk, Harga from produk");
               foreach ($t_produk as $produk){
-                echo "<option value =$produk[produkId]>$produk[namaProduk]($produk[Harga])</option>";
+                echo "<option value =$produk[produkID]>$produk[namaProduk]($produk[Harga])</option>";
               }
 				?>		
         </select>
@@ -195,42 +195,56 @@ if (!isset($_SESSION['username'])) {
                   <input type="submit" class="btn btn-danger" name="Submit"></button>
                 </div>
               </form>
-            <?php
- 
-    // Check If form submitted, insert form data into users table.
-    if(isset($_POST['Submit'])){
-        $id = $_POST['detailID'];
-        $penjual = $_POST['penjualanID'];
-        $produk = $_POST['produkID'];
-        $tgl = $_POST['tanggalPenjualan'];
-        $jumlah = $_POST['jumlahProduk'];
-        $sub = $jumlah;
-        $total;
+              <?php
+ include "koneksi.php";
+ if(isset($_POST['Submit'])){
+    $id = $_POST['detailID'];
+    $penjual = $_POST['penjualanID'];
+    $produk = $_POST['produkID'];
+    $tgl = $_POST['tanggalPenjualan'];
+    $jumlah = $_POST['jumlahProduk'];
+    
+    
+$selSto =mysqli_query($koneksi, "SELECT * FROM produk WHERE produkID='$produk'");
+$sto    =mysqli_fetch_array($selSto);
+$stok    =$sto['Stok'];
+$harga    =$sto['Harga'];
+//menghitung sisa stok
+$sub = $harga * $jumlah;
+$total = $sub;
+$sisa    =$stok-$jumlah;
+
         
-        $selSto =mysqli_query($koneksi, "SELECT * FROM produk WHERE produkID='$produk'");
-    $sto    =mysqli_fetch_array($selSto);
-    $stok    =$sto['stok'];
-    //menghitung sisa stok
-    $sisa    =$stok-$jumlah;
-        // include database connection file
-        include_once("koneksi.php");
-                
-        // Insert user data into table
+        if ($stok < $jumlah) {
+          ?>
+          <script language="JavaScript">
+              alert('Oops! Jumlah barang lebih besar dari stok ...');
+              document.location='index.php';
+          </script>
+          <?php
+      }
+      //proses    
+      else{
         $result = mysqli_query($koneksi, "INSERT INTO detail_penjualan (detailID, penjualanID, produkID, jumlahProduk, subTotal) VALUES ('$id','$penjual','$produk','$jumlah','$sub')");
-                $resultpenjualan = mysqli_query($koneksi, "INSERT INTO penjualan (penjualanID, tanggalPenjualan, totalHarga) VALUES ('$nik','$nama','$telp','$total')");
-                
-                if ($result){
-                  echo"Sukses menambah data baru!";
-                }else{
-                  echo "terjadi kesalahan saat menamambahkan pengaduan!";
-                }
-              
-        
-        // Show message when user added
-        //header("Location: shows.php");
-        echo "<script>window.location.href='index.php';</script>";
-    }
-    ?>
+        $resultpenjualan = mysqli_query($koneksi, "INSERT INTO penjualan (penjualanID, tanggalPenjualan, totalHarga) VALUES ('$penjual','$tgl','$total')");
+        if($result){
+                  //update stok
+                  $upstok= mysqli_query($koneksi, "UPDATE produk SET Stok='$sisa' WHERE produkID='$produk'");
+                  ?>
+                  <script language="JavaScript">
+                      alert('Good! Input transaksi penjualan barang berhasil ...');
+                      document.location='index.php';
+                  </script>
+                  <?php
+              }
+              else {
+                  echo "<div><b>Oops!</b> 404 Error Server.</div>";
+              }
+      }
+
+      echo "<script>window.location.href='index.php';</script>";
+      }
+  ?>
       </div>
 
       <!-- Modal footer -->
@@ -245,7 +259,7 @@ if (!isset($_SESSION['username'])) {
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Jovica Website 2023</div>
+                            <div class="text-muted">Copyright &copy; Jovica Website 2024</div>
                             <div>
                                 <a href="#">Privacy Policy</a>
                                 &middot;
@@ -262,7 +276,7 @@ $(document).ready(function(){
      var i=1;  
      $('#add').click(function(){  
           i++;  
-          $('#dynamic_field').append('<tr id="row'+i+'"><td><label for="detailID">ID Detail</label><input type="text" class="form-control" name="detailID" placeholder="Masukkan ID Detail"><label for="produkId">ID Produk</label><select name ="produkId" class="form-control"><option disabled selected> Pilih </option><?php $t_produk= mysqli_query($koneksi,"select produkId, namaProduk, Harga from produk");foreach ($t_produk as $produk){echo "<option value =$produk[produkId]>$produk[namaProduk]($produk[Harga])</option>";}?></select><label for="jumlahProduk">Jumlah Produk</label><input type="text" class="form-control" name="jumlahProduk" placeholder="Masukkan Jumlah Produk"></td></td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></tr>');  
+          $('#dynamic_field').append('<tr id="row'+i+'"><td><label for="detailID">ID Detail</label><input type="text" class="form-control" name="detailID" placeholder="Masukkan ID Detail"><label for="produkId">ID Produk</label><select name ="produkId" class="form-control"><option disabled selected> Pilih </option><?php $t_produk= mysqli_query($koneksi,"select produkId, namaProduk, Harga from produk");foreach ($t_produk as $produk){echo "<option value =$produk[produkId]>$produk[namaProduk]($produk[Harga])</option>";}?></select><label for="jumlahProduk">Jumlah Produk</label><input type="text" class="form-control" name="jumlahProduk" placeholder="Masukkan Jumlah Produk"></td></td><button type="button" name="remove" id="'+i+'" class="btn btn-danger btn_remove">X</button></td></td></tr>');  
      });  
      $(document).on('click', '.btn_remove', function(){  
           var button_id = $(this).attr("id");   
