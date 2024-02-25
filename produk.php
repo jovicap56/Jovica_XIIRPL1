@@ -27,7 +27,7 @@ if (!isset($_SESSION['username'])) {
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
-            <a class="navbar-brand ps-3" href="index.html">Start Bootstrap</a>
+            <a class="navbar-brand ps-3" href="index.php">Aplikasi Kasir</a>
             <!-- Sidebar Toggle-->
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <!-- Navbar Search-->
@@ -87,7 +87,7 @@ if (!isset($_SESSION['username'])) {
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        Start Bootstrap
+                        <a href="#"  method="POST" class="d-block"><?php echo "<h6> "."Admin ". $_SESSION['username']. "</h6>"; ?></a>
                     </div>
                 </nav>
             </div>
@@ -183,7 +183,7 @@ if (!isset($_SESSION['username'])) {
  
     // Check If form submitted, insert form data into users table.
     if(isset($_POST['Submit'])){
-        $id = $_POST['produkID'];
+        $produk = $_POST['produkID'];
         $nama = $_POST['namaProduk'];
         $harga = $_POST['Harga'];
         $stok = $_POST['Stok'];
@@ -192,10 +192,8 @@ if (!isset($_SESSION['username'])) {
         include_once("koneksi.php");
                 
         // Insert user data into table
-        $result = mysqli_query($koneksi, "INSERT INTO produk(produkID,namaProduk,Harga,Stok) VALUES('$id','$nama','$harga','$stok')");
+        $result = mysqli_query($koneksi, "INSERT INTO produk(produkID,namaProduk,Harga,Stok) VALUES('$produk','$nama','$harga','$stok')");
         
-        // Show message when user added
-        //header("Location: shows.php");
         echo "<script>window.location.href='produk.php';</script>";
     }
     ?>
@@ -213,7 +211,7 @@ if (!isset($_SESSION['username'])) {
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Jovica Website 2023</div>
+                            <div class="text-muted">Copyright &copy; Jovica Website 2024</div>
                             <div>
                                 <a href="#">Privacy Policy</a>
                                 &middot;
