@@ -133,14 +133,32 @@ body{
 
 <body>
 <?php
- include 'koneksi.php';
- $id = $_GET['produkID'];
- $query = mysqli_query($koneksi,"select * from produk where produkID='$id'");
- while($data = mysqli_fetch_array($query))
- ?>
+ include "koneksi.php";
+    // Check If form submitted, insert form data into users table.
+    if(isset($_POST["update"])){
+        $produk = $_POST['produkID'];
+        $nama = $_POST['namaProduk'];
+        $harga = $_POST['Harga'];
+        $stok = $_POST['Stok'];
+        
+        $simpan=mysqli_query($koneksi,"update produk set namaProduk='$nama',Harga='$harga',Stok='$stok' where produkID='$produk'");
+
+        if($simpan){
+            header("location:produk.php");
+        }
+        else {
+            echo"<div class='alert alert-danger'>Gagal menambah data baru!</div>";
+        }
+
+    }
+    ?>
 <div class="form-style-10">
 <h1>Update data Produk!<span></span></h1>
-<form method="post" action="up.php">
+<form method="post" action=" ">
+			<?php
+            $row=mysqli_query($koneksi,"select * from produk where produkID ='$_GET[produkID]'");
+            foreach ($row as $data) {
+            ?>
     <div class="inner-wrap">
         <label>ID Produk<input type="text" name="produkID" value="<?php echo $data['produkID']; ?>" readonly></label>
         <label>Nama Produk <input type="text" name="namaProduk" value="<?php echo $data['namaProduk']; ?>"></label>
@@ -148,10 +166,9 @@ body{
         <label>Stok<input type="text" name="Stok" value="<?php echo $data['Stok']; ?>"></label>
     </div>
     <div class="button-section">
-     <input type="submit" value="SIMPAN"  />
-     
-
+     <input type="submit" value="SIMPAN" name="update">
     </div>
+	<?php } ?>
 </form>
 </div>
 
